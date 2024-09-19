@@ -26,10 +26,16 @@ class PhotosDB:
 
 
 class macOSDB(PhotosDB):
+    '''
+    used for macOS to get the database file from local file system
+    '''
     def __init__(self, path: str) -> None:
         super().__init__(path)
     
 class iosDB(PhotosDB):
+    '''
+    used for iDevices to get the database file from the device
+    '''
     def __init__(self, path: str) -> None:
         super().__init__(path)
 

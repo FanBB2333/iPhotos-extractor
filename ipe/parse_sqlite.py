@@ -2,9 +2,11 @@ import sqlite3
 import os
 import json
 
-db_file = r"/Users/l1ght/Pictures/Photos Library.photoslibrary/database/Photos.sqlite"
-# db_file = r"/Users/l1ght/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
+db_file = r"~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite"
+# db_file = r"~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
 # db_file = r"NoteStore.sqlite"
+# parse home dir
+db_file = os.path.expanduser(db_file)
 
 def inspect_tables():
     conn = sqlite3.connect(db_file)
