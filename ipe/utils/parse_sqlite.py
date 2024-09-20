@@ -2,7 +2,7 @@ import sqlite3
 import os
 import json
 
-db_file = r"~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite"
+db_file = r"~/Pictures/Photos Library.photoslibrary"
 # db_file = r"~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
 # db_file = r"NoteStore.sqlite"
 # parse home dir
@@ -69,8 +69,8 @@ def print_table_content(table_name, n=None):
     conn.close()
 
 if __name__ == "__main__":
-    # inspect_tables()
+    inspect_tables()
     # print_table_columns('ZALBUMLIST')
-    print_table_columns('ZASSET')
-    print_table_content('ZASSET', 10)
+    # print_table_columns('ZASSET')
+    # print_table_content('ZASSET', 10)
     
