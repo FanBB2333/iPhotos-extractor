@@ -1,113 +1,33 @@
-# IPE(iPhotos-extractor)
+# [WIP] IPE(iPhotos-extractor)
+## Intro
+
+**This project is still under development.**
+
+This is a simple tool for extracting photos from `Photos` app on macOS/iOS devices by parsing the database file stored on devices.
+
+We aim to deal with the possible problems among the existing tools.
+
+
 ## Possible drawbacks of existing tools
-- Cannot tell the difference between original photos and edited photos if edited in `Photos.app`
-- Cannot keep the original file structure/album structure
-- Cannot extract the metadata of the photos
+
+- Cannot backup live photos.
+- Cannot tell the difference between original photos and edited photos if edited in `Photos.app`.
+- Cannot keep the original file structure/album structure.
+- Cannot extract the metadata of the photos.
 
 
-## Inspect sqlite database
-### The `every-photo` tables
-- `ZASSET` table: One photo or video corresponds to one row in this table
-- `ZEXTENDEDATTRIBUTES` table
-- `ZCHARACTERRECOGNITIONATTRIBUTES` table (larger rows)
-- `ZCLOUDMASTER` table (smaller rows)
-- `ZCLOUDMASTERMEDIAMETADATA` table (larger rows)
-- `ZCOMPUTEDASSETATTRIBUTES` table (larger rows)
-- `ZCOMPUTESYNCATTRIBUTES` table (larger rows)
-- `ZMEDIAANALYSISASSETATTRIBUTES` table (larger rows)
-- `ZPHOTOANALYSISASSETATTRIBUTES` table (larger rows)
-- `ZSCENEPRINT` table (larger rows)
-- `ZVISUALSEARCHATTRIBUTES` table (larger rows)
+## Future Plan
+
+- [ ] Extract photos from the database file.
+- [ ] Extract live photos.
+- [ ] Extract the original photos and edited photos separately.
+- [ ] Extract the metadata of the photos.
+- [ ] Insert photos/create albums by manipulating the database file.
+- [ ] Full-database backup and restore.
 
 
-`ZGENERICALBUM`: get the title of albums which `ZKIND` == 2:
-`ZGENERICALBUM.Z_PK` == `Z_29ALBUMLISTS.Z_29ALBUMS`'s `Z_29ALBUMLISTS.Z_FOK_29ALBUMS` column
 
-- WHAT IS THE DIFFERENCE BETWEEN `Z_29KEYASSETS` AND `Z_30ASSETS`?
-  - Seems that `Z_30ASSETS` table contains whole assets in the album, while `Z_29KEYASSETS` table contains only key assets in the album.
+## Acknowledgement
 
-### `ZASSET` table
-
-```json
-{
-    "Z_1KEYWORDS": "",
-    "ZALBUMLIST": "",
-    "Z_3SUGGESTIONSBEINGREPRESENTATIVEASSETS": "",
-    "Z_3SUGGESTIONSBEINGKEYASSETS": "",
-    "Z_3MEMORIESBEINGREPRESENTATIVEASSETS": "",
-    "Z_3MEMORIESBEINGMOVIECURATEDASSETS": "",
-    "Z_3MEMORIESBEINGCURATEDASSETS": "",
-    "Z_3MEMORIESBEINGEXTENDEDCURATEDASSETS": "",
-    "ZASSETANALYSISSTATE": "",
-    "ZASSETDESCRIPTION": "",
-    "ZCLOUDFEEDENTRY": "",
-    "ZCLOUDMASTER": "",
-    "ZCLOUDMASTERMEDIAMETADATA": "",
-    "ZCLOUDRESOURCE": "",
-    "ZCLOUDSHAREDALBUMINVITATIONRECORD": "",
-    "ZCLOUDSHAREDCOMMENT": "",
-    "ZCOMPUTEDASSETATTRIBUTES": "",
-    "ZDEFERREDREBUILDFACE": "",
-    "Z_18CLUSTERREJECTEDPERSONS": "",
-    "Z_18REJECTEDPERSONS": "",
-    "Z_18REJECTEDPERSONSNEEDINGFACECROPS": "",
-    "ZDETECTEDFACEGROUP": "",
-    "ZDETECTEDFACEPRINT": "",
-    "ZEDITEDIPTCATTRIBUTES": "",
-    "ZEXTENDEDATTRIBUTES": "",
-    "ZFACECROP": "",
-    "ZFILESYSTEMBOOKMARK": "",
-    "ZFILESYSTEMVOLUME": "",
-    "Z_27ALBUMLISTS": "",
-    "Z_28ASSETS": "",
-    "ZGLOBALKEYVALUE": "",
-    "ZKEYWORD": "",
-    "ZLEGACYFACE": "",
-    "ZMIGRATIONHISTORY": "",
-    "Z_47MERGECANDIDATES": "",
-    "Z_47INVALIDMERGECANDIDATES": "",
-    "ZPERSONREFERENCE": "",
-    "ZQUESTION": "",
-    "ZSCENECLASSIFICATION": "",
-    "ZSCENEPRINT": "",
-    "ZSUGGESTION": "",
-    "ZUNMANAGEDADJUSTMENT": "",
-    "Z_METADATA": "",
-    "Z_MODELCACHE": "",
-    "ACHANGE": "",
-    "ATRANSACTION": "",
-    "ATRANSACTIONSTRING": "",
-    "ZMEDIAANALYSISASSETATTRIBUTES": "",
-    "ZLIMITEDLIBRARYFETCHFILTER": "",
-    "ZUSERFEEDBACK": "",
-    "ZMOMENT": "",
-    "Z_3MEMORIESBEINGUSERCURATEDASSETS": "",
-    "ZDETECTIONTRAIT": "",
-    "ZCHARACTERRECOGNITIONATTRIBUTES": "",
-    "ZPERSON": "",
-    "ZMEMORY": "",
-    "ZGENERICALBUM": "",
-    "ZVISUALSEARCHATTRIBUTES": "",
-    "ZSHARE": "",
-    "ZPHOTOSHIGHLIGHT": "",
-    "Z_47MERGECANDIDATESWITHCONFIDENCE": "",
-    "ZDETECTEDFACE": "",
-    "Z_3MEMORIESBEINGCUSTOMUSERASSETS": "",
-    "ZPHOTOANALYSISASSETATTRIBUTES": "",
-    "ZASSETCONTRIBUTOR": "",
-    "Z_PRIMARYKEY": "",
-    "ZSHAREPARTICIPANT": "",
-    "ZASSET": "",
-    "Z_RT_Asset_boundedByRect": "",
-    "Z_RT_Asset_boundedByRect_rowid": "",
-    "Z_RT_Asset_boundedByRect_node": "",
-    "Z_RT_Asset_boundedByRect_parent": "",
-    "ZINTERNALRESOURCE": "",
-    "Z_3HIGHLIGHTSBEINGADAPTIVEEXPLICITLYREMOVEDASSETS": "",
-    "Z_3HIGHLIGHTSBEINGADAPTIVEEXTENDEDASSETS": "",
-    "Z_3HIGHLIGHTSBEINGADAPTIVEASSETS": "",
-    "Z_3HIGHLIGHTSBEINGADAPTIVESUMMARYASSETS": "",
-    "Z_3HIGHLIGHTSBEINGADAPTIVEEXPLICITLYADDEDASSETS": "",
-    "ZADDITIONALASSETATTRIBUTES": ""
-}
-```
+- [pymobiledevice3](https://github.com/doronz88/pymobiledevice3/)
+- [PhotosExporter](https://github.com/abentele/PhotosExporter)
