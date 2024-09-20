@@ -2,9 +2,10 @@ import sqlite3
 import os
 import json
 
-db_file = r"~/Pictures/Photos Library.photoslibrary"
+db_file = r"~/Pictures/Photos Library.photoslibrary/database/Photos.sqlite"
 # db_file = r"~/Library/Group Containers/group.com.apple.notes/NoteStore.sqlite"
 # db_file = r"NoteStore.sqlite"
+db_file = r"./test/test1.photoslibrary/database/Photos.sqlite"
 # parse home dir
 db_file = os.path.expanduser(db_file)
 

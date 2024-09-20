@@ -14,6 +14,7 @@ from pymobiledevice3.services.afc import AfcService, AfcShell
 
 from ipe.constants import *
 from ipe.classes.album import Album
+from ipe.classes.photo import Photo
 
 class PhotosDB(ABC):
     '''
@@ -41,20 +42,31 @@ class PhotosDB(ABC):
     def init_db(self, path):
         self.conn = sqlite3.connect(path)
         self.curs = self.conn.cursor()
+        # self.photos = self.get_photos()
         self.albums = self.get_albums()
+    
+    def get_photos(self):
+        # parse the main ZASSET table and read in photos info
+        self.curs.execute("SELECT * FROM ZASSET")
+        column_names = [description[0] for description in self.curs.description]
+        assets = self.curs.fetchall()
+        assets_with_columns = [dict(zip(column_names, asset)) for asset in assets]
+        # convert to Photo objects
+        photos = [Photo(**a) for a in assets_with_columns]
+        return photos
     
     def get_albums(self):
         # select the user-created albums
         self.curs.execute("SELECT * FROM ZGENERICALBUM where ZKIND = 2")
         column_names = [description[0] for description in self.curs.description]
-
         albums = self.curs.fetchall()
-
         albums_with_columns = [dict(zip(column_names, album)) for album in albums]
-
         # convert to Album objects
-        print(albums_with_columns[0])
         albums = [Album(**a) for a in albums_with_columns]
+        
+        
+        
+        
         return albums
     
     def parse_albums(self):
