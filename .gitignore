@@ -1,5 +1,6 @@
 *draft*.md
 *.photoslibrary
+ipe/**/table_info*.json
 # Byte-compiled files
 __pycache__/
 *.py[cod]
