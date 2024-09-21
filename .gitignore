@@ -1,6 +1,7 @@
 *draft*.md
 *.photoslibrary
 ipe/**/table_info*.json
+*.sqlite*
 # Byte-compiled files
 __pycache__/
 *.py[cod]

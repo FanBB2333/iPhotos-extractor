@@ -1,7 +1,7 @@
-# [WIP] IPE(iPhotos-extractor)
+# [WIP] IPE(iPhotos-Extractor)
 ## Intro
 
-**This project is still under development.**
+**!!! This project is still under development. !!!**
 
 This is a simple tool for extracting photos from `Photos` app on macOS/iOS devices by parsing the database file stored on devices.
 
@@ -18,12 +18,14 @@ We aim to deal with the possible problems among the existing tools.
 
 ## Future Plan
 
-- [ ] Extract photos from the database file.
+- [ ] Extract photos info from the database file.
 - [ ] Extract live photos.
 - [ ] Extract the original photos and edited photos separately.
 - [ ] Extract the metadata of the photos.
+- [ ] Extract album info and avoid duplicates.
 - [ ] Insert photos/create albums by manipulating the database file.
 - [ ] Full-database backup and restore.
+- [x] Wireless connection support.(thanks to `pymobiledevice3`!)
 
 
 

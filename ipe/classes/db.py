@@ -6,7 +6,9 @@ import logging
 import json
 from pathlib import Path
 
+
 import sqlite3
+import pandas as pd
 from pymobiledevice3 import usbmux
 from pymobiledevice3.lockdown import create_using_usbmux, LockdownClient
 from pymobiledevice3.services.diagnostics import DiagnosticsService
@@ -42,7 +44,7 @@ class PhotosDB(ABC):
     def init_db(self, path):
         self.conn = sqlite3.connect(path)
         self.curs = self.conn.cursor()
-        # self.photos = self.get_photos()
+        self.photos = self.get_photos()
         self.albums = self.get_albums()
     
     def get_photos(self):
@@ -53,6 +55,8 @@ class PhotosDB(ABC):
         assets_with_columns = [dict(zip(column_names, asset)) for asset in assets]
         # convert to Photo objects
         photos = [Photo(**a) for a in assets_with_columns]
+        photos = {photo.Z_PK: photo for photo in photos}
+        print(f"There are {len(photos)} photos in the database.")
         return photos
     
     def get_albums(self):
@@ -64,8 +68,13 @@ class PhotosDB(ABC):
         # convert to Album objects
         albums = [Album(**a) for a in albums_with_columns]
         
-        
-        
+        # get info from Z_30ASSETS table
+        self.curs.execute("SELECT * FROM Z_30ASSETS")
+        column_names = [description[0] for description in self.curs.description]
+        assets = self.curs.fetchall()
+        assets_with_columns = [dict(zip(column_names, asset)) for asset in assets]
+        for album in albums:
+            album.PhotoIds = [asset["Z_3ASSETS"] for asset in assets_with_columns if asset["Z_30ALBUMS"] == album.Z_PK]
         
         return albums
     
@@ -80,7 +89,7 @@ class macOSDB(PhotosDB):
     used for macOS to get the database file from local file system
     '''
     def __init__(self, path: str = MACOS_PHOTOS_DB) -> None:
-        super().__init__(path)
+        super().__init__(path=path)
     
     def test(self):
         print("test")
@@ -89,10 +98,14 @@ class iosDB(PhotosDB):
     '''
     used for iDevices to get the database file from the device
     '''
-    def __init__(self, path: str) -> None:
-        super().__init__(path)
+    def __init__(self, device_id: int = DEVICE_ID) -> None:
+        self.init_device(device_id)
+        self.tmp_dir = TemporaryDirectory()
+        print(f"Temporary directory: {self.tmp_dir.name}")
+        self.local_file = self.get_db_from_device()
+        super().__init__(path=self.local_file)
 
-    def get_db_from_device(self, device_id: int = DEVICE_ID, remote_file: str = IDEVICES_PHOTOS_DB):
+    def init_device(self, device_id: int = DEVICE_ID):
         available_devices = usbmux.list_devices()
         # check the device_id is valid
         if device_id >= len(available_devices):
@@ -101,18 +114,26 @@ class iosDB(PhotosDB):
             else:
                 print(f"Invalid device id {device_id}.")
             return None
-        device = available_devices[device_id]
+        self.device = available_devices[device_id]
         # use afc to get the file
-        conn = create_using_usbmux(device.serial)
-        afc = AfcService(lockdown=conn)
-        with TemporaryDirectory() as tmp_dir:
-            local_file = Path(tmp_dir) / "Photos.sqlite"
-            print(f"Pulling file from {device.serial} to {local_file}")
-            # pull file from device
-            afc.pull(remote_file, local_file)
-            return local_file
+        self.ldc = create_using_usbmux(self.device.serial) # lockdown client
+        self.afc = AfcService(lockdown=self.ldc)
+        
+    
+    def get_db_from_device(self, remote_file: str = IDEVICES_PHOTOS_DB):
+        local_file = Path(self.tmp_dir.name) / "Photos.sqlite"
+        print(f"Pulling file from {self.ldc.all_values['DeviceName']} to {local_file}")
+        # pull file from device
+        self.afc.pull(remote_file, local_file)
+        return local_file
+    
+    def __del__(self):
+        self.tmp_dir.cleanup()
+        super().__del__()
         
         
 if __name__ == "__main__":
-    db = macOSDB()
+    # db = macOSDB()
+    # db.parse_albums()
+    db = iosDB()
     db.parse_albums()
