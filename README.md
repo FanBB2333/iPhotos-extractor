@@ -33,3 +33,4 @@ We aim to deal with the possible problems among the existing tools.
 
 - [pymobiledevice3](https://github.com/doronz88/pymobiledevice3/)
 - [PhotosExporter](https://github.com/abentele/PhotosExporter)
+- [osxphotos](https://github.com/RhetTbull/osxphotos)
