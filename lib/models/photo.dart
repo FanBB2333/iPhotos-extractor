@@ -12,12 +12,15 @@ class Photo {
   final bool isLivePhoto;
   final bool isVideo;
   final bool isScreenshot;
+  final String? previewPath;
 
   Photo({
     required this.uuid,
     required this.filename,
     this.originalFilename,
     this.path,
+    this.previewPath,
+
     this.date,
     this.width,
     this.height,
@@ -42,9 +45,11 @@ class Photo {
       isLivePhoto: json['is_live_photo'] as bool? ?? false,
       isVideo: json['is_video'] as bool? ?? false,
       isScreenshot: json['is_screenshot'] as bool? ?? false,
+      previewPath: json['preview_path'] as String?,
     );
   }
 }
+
 
 /// Detailed photo metadata.
 class PhotoMetadata extends Photo {
@@ -77,7 +82,9 @@ class PhotoMetadata extends Photo {
     super.isLivePhoto,
     super.isVideo,
     super.isScreenshot,
+    super.previewPath,
     this.dateModified,
+
     this.description,
     this.title,
     this.keywords = const [],
@@ -123,6 +130,7 @@ class PhotoMetadata extends Photo {
       isScreenshot: json['is_screenshot'] as bool? ?? false,
       exif: json['exif'] != null ? ExifInfo.fromJson(json['exif']) : null,
       location: json['location'] != null ? LocationInfo.fromJson(json['location']) : null,
+      previewPath: json['preview_path'] as String?,
     );
   }
 }

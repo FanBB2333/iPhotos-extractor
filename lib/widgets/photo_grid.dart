@@ -101,9 +101,9 @@ class _PhotoTile extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               // Photo image
-              if (photo.path != null && File(photo.path!).existsSync())
+              if (_getImagePath(photo) != null)
                 Image.file(
-                  File(photo.path!),
+                  File(_getImagePath(photo)!),
                   fit: BoxFit.cover,
                   cacheWidth: 300,
                   filterQuality: FilterQuality.low,
@@ -112,6 +112,7 @@ class _PhotoTile extends StatelessWidget {
                   ),
                 )
               else
+
                 _PlaceholderImage(icon: Icons.image),
               
               // Overlay indicators
@@ -144,6 +145,16 @@ class _PhotoTile extends StatelessWidget {
         ),
       ),
     );
+    }
+
+  String? _getImagePath(Photo photo) {
+    if (photo.path != null && File(photo.path!).existsSync()) {
+      return photo.path;
+    }
+    if (photo.previewPath != null && File(photo.previewPath!).existsSync()) {
+      return photo.previewPath;
+    }
+    return null;
   }
 }
 

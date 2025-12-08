@@ -5,6 +5,7 @@ Communicates with Flutter frontend via stdin/stdout.
 """
 
 import sys
+import os
 import json
 import osxphotos
 from datetime import datetime, timezone, timedelta
@@ -128,11 +129,25 @@ class PhotosBridge:
         
         result = []
         for photo in photos:
+            # Check if original path exists, otherwise try to find a preview
+            path = photo.path
+            preview_path = None
+            
+            # If path is missing or file doesn't exist, look for derivatives
+            if not path or not os.path.isfile(path):
+                try:
+                    derivatives = photo.path_derivatives
+                    if derivatives:
+                        preview_path = derivatives[0]  # Use the largest derivative
+                except Exception:
+                    pass
+            
             result.append({
                 "uuid": photo.uuid,
                 "filename": photo.filename,
                 "original_filename": photo.original_filename,
-                "path": photo.path,
+                "path": path,
+                "preview_path": preview_path,
                 "date": str(photo.date) if photo.date else None,
                 "width": photo.width,
                 "height": photo.height,
@@ -179,7 +194,7 @@ class PhotosBridge:
                 "longitude": location[1]
             }
         
-        return {
+        response = {
             "uuid": photo.uuid,
             "filename": photo.filename,
             "original_filename": photo.original_filename,
@@ -206,8 +221,21 @@ class PhotosBridge:
             "is_video": photo.ismovie,
             "is_screenshot": photo.screenshot,
             "exif": exif_data,
-            "location": location_data
+            "location": location_data,
+            "preview_path": None  # Will be populated by logic below
         }
+        
+        # Add preview path logic
+        if not photo.path or not os.path.isfile(photo.path):
+            try:
+                derivatives = photo.path_derivatives
+                if derivatives:
+                    response["preview_path"] = derivatives[0]
+            except Exception:
+                pass
+                
+        return response
+
     
     def get_statistics(self) -> Dict[str, Any]:
         """Get photo library statistics."""

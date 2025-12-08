@@ -99,7 +99,8 @@ class _PhotoDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (photo.path == null || !File(photo.path!).existsSync()) {
+    final imagePath = _getImagePath(photo);
+    if (imagePath == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -124,7 +125,7 @@ class _PhotoDisplay extends StatelessWidget {
       maxScale: 4.0,
       child: Center(
         child: Image.file(
-          File(photo.path!),
+          File(imagePath),
           fit: BoxFit.contain,
           errorBuilder: (context, error, stackTrace) => Center(
             child: Icon(
@@ -137,6 +138,17 @@ class _PhotoDisplay extends StatelessWidget {
       ),
     );
   }
+
+  String? _getImagePath(Photo photo) {
+    if (photo.path != null && File(photo.path!).existsSync()) {
+      return photo.path;
+    }
+    if (photo.previewPath != null && File(photo.previewPath!).existsSync()) {
+      return photo.previewPath;
+    }
+    return null;
+  }
+
 }
 
 /// Metadata panel showing photo details.
