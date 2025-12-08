@@ -120,7 +120,7 @@ class PythonBridge {
   /// Initialize the Photos library connection.
   Future<Map<String, dynamic>> initialize() async {
     // Initialization can take a long time for large libraries
-    final response = await call('initialize', null, const Duration(seconds: 120));
+    final response = await call('initialize', null, const Duration(minutes: 5));
     if (response['result'] != null && response['result']['status'] == 'ok') {
       _isInitialized = true;
     }

@@ -6,13 +6,9 @@ Communicates with Flutter frontend via stdin/stdout.
 
 import sys
 import json
-import logging
 import osxphotos
 from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any, List
-
-# Configure logging to suppress warnings from osxphotos
-logging.basicConfig(level=logging.ERROR)
 
 
 class PhotosBridge:
