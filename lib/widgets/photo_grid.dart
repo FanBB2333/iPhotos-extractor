@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/photo.dart';
 
-/// Grid view for displaying photos.
+/// Grid view for displaying photos with infinite scroll support.
 class PhotoGrid extends StatelessWidget {
   final List<Photo> photos;
   final String? selectedPhotoUuid;
   final void Function(Photo photo) onPhotoTap;
   final void Function(Photo photo)? onPhotoDoubleTap;
+  final VoidCallback? onLoadMore;
+  final bool hasMore;
+  final bool isLoadingMore;
 
   const PhotoGrid({
     super.key,
@@ -15,6 +18,9 @@ class PhotoGrid extends StatelessWidget {
     this.selectedPhotoUuid,
     required this.onPhotoTap,
     this.onPhotoDoubleTap,
+    this.onLoadMore,
+    this.hasMore = false,
+    this.isLoadingMore = false,
   });
 
   @override
@@ -41,31 +47,59 @@ class PhotoGrid extends StatelessWidget {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(8),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 160,
-        crossAxisSpacing: 4,
-        mainAxisSpacing: 4,
-        childAspectRatio: 1,
-      ),
-      itemCount: photos.length,
-      itemBuilder: (context, index) {
-        final photo = photos[index];
-        final isSelected = photo.uuid == selectedPhotoUuid;
-        
-        return _PhotoTile(
-          photo: photo,
-          isSelected: isSelected,
-          onTap: () => onPhotoTap(photo),
-          onDoubleTap: onPhotoDoubleTap != null 
-              ? () => onPhotoDoubleTap!(photo) 
-              : null,
-        );
+    // Total items = photos + loading indicator if loading more
+    final itemCount = photos.length + (isLoadingMore ? 1 : 0);
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification is ScrollEndNotification) {
+          final metrics = notification.metrics;
+          // Trigger load more when scrolled to 80% of the content
+          if (metrics.pixels >= metrics.maxScrollExtent * 0.8) {
+            if (hasMore && !isLoadingMore && onLoadMore != null) {
+              onLoadMore!();
+            }
+          }
+        }
+        return false;
       },
+      child: GridView.builder(
+        padding: const EdgeInsets.all(8),
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 160,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
+          childAspectRatio: 1,
+        ),
+        itemCount: itemCount,
+        itemBuilder: (context, index) {
+          // Show loading indicator at the end
+          if (index >= photos.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+          
+          final photo = photos[index];
+          final isSelected = photo.uuid == selectedPhotoUuid;
+          
+          return _PhotoTile(
+            photo: photo,
+            isSelected: isSelected,
+            onTap: () => onPhotoTap(photo),
+            onDoubleTap: onPhotoDoubleTap != null 
+                ? () => onPhotoDoubleTap!(photo) 
+                : null,
+          );
+        },
+      ),
     );
   }
 }
+
 
 /// Individual photo tile in the grid.
 class _PhotoTile extends StatelessWidget {

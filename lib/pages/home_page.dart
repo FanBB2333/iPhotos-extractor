@@ -165,6 +165,9 @@ class _MainContent extends StatelessWidget {
           photos: provider.photos,
           selectedPhotoUuid: null,
           onPhotoTap: (photo) => provider.selectPhoto(photo.uuid),
+          onLoadMore: () => provider.loadMorePhotos(),
+          hasMore: provider.hasMore,
+          isLoadingMore: provider.isLoadingMore,
         );
       
       case NavView.albums:
@@ -174,6 +177,9 @@ class _MainContent extends StatelessWidget {
             photos: provider.photos,
             selectedPhotoUuid: null,
             onPhotoTap: (photo) => provider.selectPhoto(photo.uuid),
+            onLoadMore: () => provider.loadMorePhotos(),
+            hasMore: provider.hasMore,
+            isLoadingMore: provider.isLoadingMore,
           );
         } else {
           // Show album grid

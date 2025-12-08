@@ -34,8 +34,14 @@ class PhotosProvider extends ChangeNotifier {
   
   // Loading states
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   bool _isInitialized = false;
   String? _error;
+  
+  // Pagination state
+  int _currentOffset = 0;
+  bool _hasMore = true;
+  static const int _pageSize = 100;
 
   PhotosProvider(this._bridge);
 
@@ -50,7 +56,9 @@ class PhotosProvider extends ChangeNotifier {
   List<Photo> get photos => _photos;
   PhotoMetadata? get selectedPhotoMetadata => _selectedPhotoMetadata;
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
   bool get isInitialized => _isInitialized;
+  bool get hasMore => _hasMore;
   String? get error => _error;
 
   /// Initialize the provider and load initial data.
@@ -146,8 +154,12 @@ class PhotosProvider extends ChangeNotifier {
   /// Load all library photos.
   Future<void> loadLibraryPhotos() async {
     _setLoading(true);
+    _currentOffset = 0;
+    _hasMore = true;
     try {
-      _photos = await _bridge.getPhotos(limit: 200);
+      _photos = await _bridge.getPhotos(limit: _pageSize, offset: 0);
+      _currentOffset = _photos.length;
+      _hasMore = _photos.length >= _pageSize;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -155,11 +167,60 @@ class PhotosProvider extends ChangeNotifier {
     }
   }
 
+  /// Load more library photos (pagination).
+  Future<void> loadMorePhotos() async {
+    if (_isLoadingMore || !_hasMore) return;
+    
+    _isLoadingMore = true;
+    notifyListeners();
+    
+    try {
+      List<Photo> morePhotos;
+      switch (_currentView) {
+        case NavView.library:
+          morePhotos = await _bridge.getPhotos(limit: _pageSize, offset: _currentOffset);
+          break;
+        case NavView.favorites:
+          morePhotos = await _bridge.getPhotos(favoritesOnly: true, limit: _pageSize, offset: _currentOffset);
+          break;
+        case NavView.recent:
+          morePhotos = await _bridge.getPhotos(recentDays: 30, limit: _pageSize, offset: _currentOffset);
+          break;
+        case NavView.albums:
+          if (_selectedAlbumUuid != null) {
+            morePhotos = await _bridge.getPhotos(albumUuid: _selectedAlbumUuid, limit: _pageSize, offset: _currentOffset);
+          } else {
+            morePhotos = [];
+          }
+          break;
+        default:
+          morePhotos = [];
+      }
+      
+      if (morePhotos.isNotEmpty) {
+        _photos = [..._photos, ...morePhotos];
+        _currentOffset += morePhotos.length;
+        _hasMore = morePhotos.length >= _pageSize;
+      } else {
+        _hasMore = false;
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoadingMore = false;
+      notifyListeners();
+    }
+  }
+
   /// Load favorite photos.
   Future<void> loadFavoritePhotos() async {
     _setLoading(true);
+    _currentOffset = 0;
+    _hasMore = true;
     try {
-      _photos = await _bridge.getPhotos(favoritesOnly: true, limit: 200);
+      _photos = await _bridge.getPhotos(favoritesOnly: true, limit: _pageSize, offset: 0);
+      _currentOffset = _photos.length;
+      _hasMore = _photos.length >= _pageSize;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -170,8 +231,12 @@ class PhotosProvider extends ChangeNotifier {
   /// Load recent photos (last 30 days).
   Future<void> loadRecentPhotos() async {
     _setLoading(true);
+    _currentOffset = 0;
+    _hasMore = true;
     try {
-      _photos = await _bridge.getPhotos(recentDays: 30, limit: 200);
+      _photos = await _bridge.getPhotos(recentDays: 30, limit: _pageSize, offset: 0);
+      _currentOffset = _photos.length;
+      _hasMore = _photos.length >= _pageSize;
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -183,8 +248,12 @@ class PhotosProvider extends ChangeNotifier {
   Future<void> loadAlbumPhotos(String albumUuid) async {
     _selectedAlbumUuid = albumUuid;
     _setLoading(true);
+    _currentOffset = 0;
+    _hasMore = true;
     try {
-      _photos = await _bridge.getPhotos(albumUuid: albumUuid, limit: 500);
+      _photos = await _bridge.getPhotos(albumUuid: albumUuid, limit: _pageSize, offset: 0);
+      _currentOffset = _photos.length;
+      _hasMore = _photos.length >= _pageSize;
     } catch (e) {
       _error = e.toString();
     } finally {
