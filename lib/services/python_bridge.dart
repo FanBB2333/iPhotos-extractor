@@ -18,19 +18,42 @@ class PythonBridge {
 
   /// Start the Python subprocess.
   Future<void> start() async {
-    // Get the directory where the app is running
-    final appDir = Directory.current.path;
-    final backendPath = '$appDir/backend/photos_bridge.py';
+    String? backendPath;
     
-    // Check if backend exists
-    if (!File(backendPath).existsSync()) {
-      throw Exception('Backend script not found at: $backendPath');
+    // 1. Try finding in bundle resources (bundled app)
+    // Path: .../Contents/Frameworks/App.framework/Resources/flutter_assets/backend/photos_bridge.py
+    try {
+      final exePath = Platform.resolvedExecutable;
+      final exeDir = File(exePath).parent; // Contents/MacOS
+      final bundleDir = exeDir.parent; // Contents
+      final assetsPath = '${bundleDir.path}/Frameworks/App.framework/Resources/flutter_assets/backend/photos_bridge.py';
+      
+      if (File(assetsPath).existsSync()) {
+        backendPath = assetsPath;
+      }
+    } catch (e) {
+      print('Error checking bundle path: $e');
     }
+
+    // 2. Fallback to local source path (development)
+    if (backendPath == null) {
+      final currentDir = Directory.current.path;
+      final localPath = '$currentDir/backend/photos_bridge.py';
+      if (File(localPath).existsSync()) {
+        backendPath = localPath;
+      }
+    }
+
+    if (backendPath == null) {
+      throw Exception('Backend script not found. Checked bundle and local paths.');
+    }
+
+    print('Starting Python backend from: $backendPath');
 
     _process = await Process.start(
       'python3',
       [backendPath],
-      workingDirectory: appDir,
+      workingDirectory: File(backendPath).parent.path,
     );
 
     // Listen for responses
@@ -67,7 +90,7 @@ class PythonBridge {
   }
 
   /// Send a JSON-RPC request to Python backend.
-  Future<Map<String, dynamic>> call(String method, [Map<String, dynamic>? params]) async {
+  Future<Map<String, dynamic>> call(String method, [Map<String, dynamic>? params, Duration? timeout]) async {
     if (_process == null) {
       throw Exception('Python process not started. Call start() first.');
     }
@@ -86,7 +109,7 @@ class PythonBridge {
     
     // Add timeout to prevent hanging
     return completer.future.timeout(
-      const Duration(seconds: 30),
+      timeout ?? const Duration(seconds: 60),
       onTimeout: () {
         _pending.remove(id);
         throw TimeoutException('Request timed out: $method');
@@ -96,7 +119,8 @@ class PythonBridge {
 
   /// Initialize the Photos library connection.
   Future<Map<String, dynamic>> initialize() async {
-    final response = await call('initialize');
+    // Initialization can take a long time for large libraries
+    final response = await call('initialize', null, const Duration(seconds: 120));
     if (response['result'] != null && response['result']['status'] == 'ok') {
       _isInitialized = true;
     }
