@@ -25,7 +25,8 @@ venv.bak/
 dist/
 build/
 eggs/
-lib/
+# Python lib directories (not Flutter lib/)
+ipe/lib/
 lib64/
 parts/
 sdist/
