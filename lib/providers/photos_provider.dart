@@ -7,6 +7,7 @@ import '../services/python_bridge.dart';
 
 /// Navigation view types
 enum NavView {
+  dashboard,
   library,
   albums,
   favorites,
@@ -19,7 +20,7 @@ class PhotosProvider extends ChangeNotifier {
   final PythonBridge _bridge;
   
   // Current navigation state
-  NavView _currentView = NavView.library;
+  NavView _currentView = NavView.dashboard;
   String? _selectedAlbumUuid;
   String? _selectedPhotoUuid;
   
@@ -72,8 +73,7 @@ class PhotosProvider extends ChangeNotifier {
           _loadStatistics(),
         ]);
         
-        // Load library photos by default
-        await loadLibraryPhotos();
+        // Initial data loaded
       } else {
         _error = result['result']?['message'] ?? result['error'] ?? 'Failed to initialize';
       }
@@ -116,6 +116,11 @@ class PhotosProvider extends ChangeNotifier {
     notifyListeners();
     
     switch (view) {
+      case NavView.dashboard:
+        // Dashboard uses stats data already loaded
+        _photos = [];
+        notifyListeners();
+        break;
       case NavView.library:
         loadLibraryPhotos();
         break;
@@ -211,6 +216,8 @@ class PhotosProvider extends ChangeNotifier {
   /// Get the title for the current view.
   String get currentViewTitle {
     switch (_currentView) {
+      case NavView.dashboard:
+        return 'Dashboard';
       case NavView.library:
         return 'Library';
       case NavView.albums:

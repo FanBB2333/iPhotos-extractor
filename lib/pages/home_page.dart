@@ -5,6 +5,7 @@ import '../widgets/photo_grid.dart';
 import '../widgets/album_card.dart';
 import '../widgets/photo_viewer.dart';
 import '../providers/photos_provider.dart';
+import 'dashboard_page.dart';
 
 /// Main home page with left-right layout.
 class HomePage extends StatelessWidget {
@@ -154,6 +155,9 @@ class _MainContent extends StatelessWidget {
 
     // Show content based on current view
     switch (provider.currentView) {
+      case NavView.dashboard:
+        return const DashboardPage();
+      
       case NavView.library:
       case NavView.favorites:
       case NavView.recent:

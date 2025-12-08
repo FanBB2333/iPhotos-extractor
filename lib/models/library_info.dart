@@ -28,8 +28,8 @@ class LibraryInfo {
     return LibraryInfo(
       libraryPath: json['library_path'] as String? ?? '',
       dbPath: json['db_path'] as String? ?? '',
-      dbVersion: json['db_version'] as String? ?? '',
-      photosVersion: json['photos_version'] as String? ?? '',
+      dbVersion: json['db_version']?.toString() ?? '',
+      photosVersion: json['photos_version']?.toString() ?? '',
       totalPhotos: json['total_photos'] as int? ?? 0,
       totalAlbums: json['total_albums'] as int? ?? 0,
       totalFolders: json['total_folders'] as int? ?? 0,

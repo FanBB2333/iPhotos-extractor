@@ -42,6 +42,14 @@ class Sidebar extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                _NavItem(
+                  icon: Icons.dashboard,
+                  label: 'Dashboard',
+                  count: 0, // No count for dashboard
+                  isSelected: provider.currentView == NavView.dashboard,
+                  onTap: () => provider.navigateTo(NavView.dashboard),
+                ),
+                const SizedBox(height: 8),
                 _NavSection(
                   title: 'Library',
                   children: [
